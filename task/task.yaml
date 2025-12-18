@@ -66,17 +66,23 @@ output:
     attribute_drift:
       type: object
       description: |
-        Mapping of resource identifiers to attribute-level drift.
-        Each attribute must include both expected and actual values.
+        Mapping of resource identifiers to a list of attribute-level drift entries.
       additionalProperties:
-        type: object
-        additionalProperties:
+        type: array
+        items:
           type: object
+          required:
+            - attribute
+            - expected
+            - actual
           properties:
+            attribute:
+              type: string
+              description: Name of the drifted attribute.
             expected:
-              description: Expected attribute value from ideal_state.json.
+              description: Expected value from ideal_state.json.
             actual:
-              description: Actual attribute value from current_state.json.
+              description: Actual value from current_state.json.
 
 success_criteria: |
   The task is considered successful if:
