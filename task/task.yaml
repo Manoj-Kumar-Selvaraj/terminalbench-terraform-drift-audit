@@ -1,0 +1,94 @@
+id: terraform_semantic_drift_audit
+
+title: Terraform Infrastructure Drift Audit (Ideal vs Current State)
+
+difficulty: medium-hard
+
+description: |
+  An organization manages cloud infrastructure using Terraform.
+  To maintain compliance and visibility, a periodic audit job runs
+  to compare an approved ideal infrastructure state against the
+  currently observed infrastructure state and detect drift.
+
+  You are provided with two JSON snapshots:
+  - ideal_state.json: Represents the approved, expected (ideal) infrastructure state
+  - current_state.json: Represents the currently observed infrastructure state
+
+  Your task is to analyze both snapshots, detect semantic infrastructure drift,
+  and generate a deterministic audit report.
+
+objective: |
+  Parse the ideal and current infrastructure state snapshots, compare
+  declared resources and their attributes using semantic rules, and
+  generate a structured JSON audit report indicating whether drift exists.
+
+inputs:
+  - ideal_state.json
+  - current_state.json
+
+rules:
+  - Do not modify the input files.
+  - The audit must always generate a report, even if no drift is detected.
+  - Do not generate dynamic values (timestamps must be static).
+  - Output must be fully deterministic.
+  - Output must strictly follow the defined schema.
+  - Resource identifiers must be normalized as "<resource_type>.<resource_name>".
+  - Only attributes explicitly present in ideal_state.json are considered
+    during drift detection.
+
+drift_definition:
+  missing_resources: |
+    Resources present in ideal_state.json but missing from current_state.json.
+  extra_resources: |
+    Resources present in current_state.json but missing from ideal_state.json.
+  attribute_drift: |
+    Resources present in both snapshots where one or more attribute values
+    differ between ideal and current state.
+
+output:
+  file: audit_report.json
+  format: json
+  schema:
+    audit_timestamp:
+      type: string
+      description: Static string value "STATIC" to ensure deterministic output.
+    drift_detected:
+      type: boolean
+      description: True if any type of drift is detected, otherwise false.
+    missing_resources:
+      type: array
+      items: string
+      description: Sorted list of missing resource identifiers.
+    extra_resources:
+      type: array
+      items: string
+      description: Sorted list of extra resource identifiers.
+    attribute_drift:
+      type: object
+      description: |
+        Mapping of resource identifiers to attribute-level drift.
+        Each attribute must include both expected and actual values.
+      additionalProperties:
+        type: object
+        additionalProperties:
+          type: object
+          properties:
+            expected:
+              description: Expected attribute value from ideal_state.json.
+            actual:
+              description: Actual attribute value from current_state.json.
+
+success_criteria: |
+  The task is considered successful if:
+  - audit_report.json is generated
+  - The output matches the required schema exactly
+  - All drift types are detected correctly
+  - Resource identifiers are normalized consistently
+  - Lists and object keys are sorted deterministically
+  - drift_detected accurately reflects the presence or absence of drift
+
+constraints:
+  - No external network access
+  - No Terraform CLI execution
+  - No cloud provider APIs
+  - Must run entirely in the provided container environment
