@@ -1,0 +1,21 @@
+{
+  "resources": [
+    {
+      "type": "aws_instance",
+      "name": "web",
+      "attributes": {
+        "instance_type": "t3.micro",
+        "ami": "ami-0abc1234",
+        "monitoring": true
+      }
+    },
+    {
+      "type": "aws_s3_bucket",
+      "name": "logs",
+      "attributes": {
+        "versioning": true,
+        "encrypted": true
+      }
+    }
+  ]
+}

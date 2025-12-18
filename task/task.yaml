@@ -19,8 +19,8 @@ description: |
 
 objective: |
   Parse the ideal and current infrastructure state snapshots, compare
-  declared resources and their attributes using semantic rules, and
-  generate a structured JSON audit report indicating whether drift exists.
+  declared resources and their attributes using strict semantic rules,
+  and generate a structured JSON audit report indicating whether drift exists.
 
 inputs:
   - ideal_state.json
@@ -33,8 +33,10 @@ rules:
   - Output must be fully deterministic.
   - Output must strictly follow the defined schema.
   - Resource identifiers must be normalized as "<resource_type>.<resource_name>".
-  - Only attributes explicitly present in ideal_state.json are considered
-    during drift detection.
+  - All attributes present in either ideal_state.json or current_state.json
+    must be compared during drift detection.
+  - Nested attributes must be compared recursively and reported using
+    dot-delimited attribute paths (e.g., "tags.Environment").
 
 drift_definition:
   missing_resources: |
@@ -42,8 +44,10 @@ drift_definition:
   extra_resources: |
     Resources present in current_state.json but missing from ideal_state.json.
   attribute_drift: |
-    Resources present in both snapshots where one or more attribute values
-    differ between ideal and current state.
+    Attribute drift includes:
+    - attributes with differing values between ideal and current state
+    - attributes missing from the current state
+    - attributes present only in the current state (manual or out-of-band changes)
 
 output:
   file: audit_report.json
@@ -78,11 +82,11 @@ output:
           properties:
             attribute:
               type: string
-              description: Name of the drifted attribute.
+              description: Dot-delimited path of the drifted attribute.
             expected:
-              description: Expected value from ideal_state.json.
+              description: Expected value from ideal_state.json (null if absent).
             actual:
-              description: Actual value from current_state.json.
+              description: Actual value from current_state.json (null if absent).
 
 success_criteria: |
   The task is considered successful if:

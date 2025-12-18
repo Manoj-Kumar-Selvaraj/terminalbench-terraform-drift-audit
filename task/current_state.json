@@ -1,0 +1,29 @@
+{
+  "resources": [
+    {
+      "type": "aws_instance",
+      "name": "web",
+      "attributes": {
+        "instance_type": "t3.small",
+        "ami": "ami-0abc1234",
+        "monitoring": false
+      }
+    },
+    {
+      "type": "aws_s3_bucket",
+      "name": "logs",
+      "attributes": {
+        "versioning": true,
+        "encrypted": false
+      }
+    },
+    {
+      "type": "aws_security_group",
+      "name": "debug",
+      "attributes": {
+        "ingress_rules": 1
+      }
+    }
+  ]
+}
+    
